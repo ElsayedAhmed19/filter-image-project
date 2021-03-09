@@ -14,18 +14,18 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   app.use(bodyParser.json());
 
   app.get("/filteredimage/", async (req, res) =>{
-    try {
-      let {image_url} = req.query;
-      if(!image_url){
-        return res.status(400).send("bad request!");
-      }
-      const path = await filterImageFromURL(image_url);
-      console.log('---------------------', path, '--------------------------');
-      res.sendFile(path);
-      res.on('finish', () => deleteLocalFiles([path]));
-    } catch {
-      return res.status(500).send({error: 'Unable to process your request'});
+    let image_url = req.query.image_url
+    if (!image_url) {
+      return res.status(400).send("URL not found!");
     }
+
+    const imagePath = await filterImageFromURL(image_url);
+
+    console.log('---------------------', imagePath, '--------------------------');
+
+    res.sendFile(imagePath);
+
+    res.on('finish', () => deleteLocalFiles([imagePath]));
   });
   /**************************************************************************** */
 
