@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -13,19 +13,24 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
-  app.get("/filteredimage/", async (req, res) =>{
-    let image_url = req.query.image_url
+  app.get("/filteredimage/", async (req: Request, res: Response) => {
+    let image_url: string = req.query.image_url
+
     if (!image_url) {
       return res.status(400).send("URL not found!");
     }
 
-    const imagePath = await filterImageFromURL(image_url);
+    try {
+      const imagePath: string = await filterImageFromURL(image_url);
 
-    console.log('---------------------', imagePath, '--------------------------');
+      console.log('=====================', imagePath, '======================')
 
-    res.sendFile(imagePath);
+      res.sendFile(imagePath);
 
-    res.on('finish', () => deleteLocalFiles([imagePath]));
+      res.on('finish', () => deleteLocalFiles([imagePath]));
+    } catch (error) {
+      return res.status(422).send("Image Not Found");
+    }
   });
   /**************************************************************************** */
 
